@@ -1,0 +1,6 @@
+# Temporary files
+tmp/
+
+# Hidden files and folders
+.*
+!.gitignore
