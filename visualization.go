@@ -45,7 +45,6 @@ func buildPageData(eq Equation, xmin, xmax, ymin, ymax float64) (PageData, error
 	})
 
 	if kind == SolutionUnique {
-		// Вертикальная пунктирная линия через корень
 		traces = append(traces, m{
 			"type":       "scatter",
 			"x":          []float64{ei.Root, ei.Root},
@@ -56,7 +55,7 @@ func buildPageData(eq Equation, xmin, xmax, ymin, ymax float64) (PageData, error
 			"line":       m{"color": "rgba(0,230,160,0.22)", "width": 1, "dash": "dot"},
 			"hoverinfo":  "skip",
 		})
-		// Точка-корень на оси x
+
 		label := fmt.Sprintf("x = %s", fmtF(ei.Root))
 		traces = append(traces, m{
 			"type":         "scatter",

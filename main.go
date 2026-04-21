@@ -56,7 +56,6 @@ func main() {
 	}
 	fmt.Printf("Equation: %s  →  A=%-6g B=%-6g\n", rawEq, eq.A, eq.B)
 
-	// Авто-масштаб Y если уравнение только константа
 	if math.Abs(eq.A) < 1e-12 {
 		ymin = eq.B - 5
 		ymax = eq.B + 5

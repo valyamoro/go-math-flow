@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// ParseEquation парсит уравнение вида "2x + 3 = 7" или "-x + 4 = 2x - 1"
-// и приводит к стандартной форме Ax + B = 0.
 func ParseEquation(s string) (Equation, error) {
 	s = strings.TrimSpace(s)
 	idx := strings.Index(s, "=")
@@ -27,12 +25,9 @@ func ParseEquation(s string) (Equation, error) {
 		return Equation{}, fmt.Errorf("RHS %q: %w", rhsRaw, err)
 	}
 
-	// (la)x + lb = (ra)x + rb  →  (la-ra)x + (lb-rb) = 0
 	return Equation{A: la - ra, B: lb - rb, Original: s}, nil
 }
 
-// parseLinearExpr разбирает выражение вида "2x + 3" или "-x - 5"
-// и возвращает (коэффициент при x, свободный член).
 func parseLinearExpr(expr string) (coeffX, constant float64, err error) {
 	expr = strings.ReplaceAll(expr, " ", "")
 	if expr == "" {
