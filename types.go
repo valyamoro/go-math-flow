@@ -2,7 +2,6 @@ package main
 
 import (
 	"html/template"
-	"strings"
 )
 
 type SolutionKind int
@@ -12,11 +11,6 @@ const (
 	SolutionNone
 	SolutionInfinite
 )
-
-type Equation struct {
-	A, B     float64
-	Original string
-}
 
 type EqInfo struct {
 	Original string
@@ -36,8 +30,3 @@ type PageData struct {
 	XMin, XMax float64
 	YMin, YMax float64
 }
-
-type stringsFlag []string
-
-func (f *stringsFlag) String() string     { return strings.Join(*f, ", ") }
-func (f *stringsFlag) Set(v string) error { *f = append(*f, v); return nil }

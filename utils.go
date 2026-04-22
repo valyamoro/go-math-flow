@@ -69,6 +69,9 @@ func buildStepMul(A, B float64) string {
 	return lhs + " = " + fmtF(negB)
 }
 
+// r3 rounds v to 3 decimal places — avoids ugly floats in displayed results.
+func r3(v float64) float64 { return math.Round(v*1000) / 1000 }
+
 func buildStepDiv(A, B float64) string {
 	root := r3(-B / A)
 	num, denom := -B, A
