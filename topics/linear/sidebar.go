@@ -7,20 +7,16 @@ import (
 	"strings"
 )
 
-// SidebarData holds all display-ready strings for the HTML sidebar panel.
-// It is built once from LinearProblem + LinearSolution and passed directly
-// to the template — the template never touches math logic.
 type SidebarData struct {
-	Original   string  // raw input:           "2x + 3 = 7"
-	Standard   string  // normal form:         "2x - 4 = 0" / "2x - 4 > 0"
-	Solution   string  // human answer:        "x = 2" / "x > 3" / "x ∈ ℝ"
-	ResultKind string  // "unique" | "none" | "infinite" | "interval"
-	Root       float64 // numeric root — only when ResultKind == "unique"
-	StepMul    string  // step 2: "2x = 4"    — only when ResultKind == "unique"
-	StepDiv    string  // step 3: "x = 4/2=2" — only when ResultKind == "unique"
+	Original   string
+	Standard   string
+	Solution   string
+	ResultKind string
+	Root       float64
+	StepMul    string
+	StepDiv    string
 }
 
-// BuildSidebar assembles a SidebarData ready for the HTML template.
 func BuildSidebar(lp LinearProblem, ls LinearSolution) SidebarData {
 	sd := SidebarData{
 		Original: lp.Original(),
@@ -43,8 +39,6 @@ func BuildSidebar(lp LinearProblem, ls LinearSolution) SidebarData {
 	return sd
 }
 
-// buildStdForm renders the canonical "Ax + B ⋈ 0" string.
-// Using the actual operator (not always "=") fixes the display for inequalities.
 func buildStdForm(A, B float64, op string) string {
 	var sb strings.Builder
 	const eps = 1e-12
@@ -87,7 +81,6 @@ func buildStpDiv(A, B float64) string {
 	return fmt.Sprintf("x = %s / %s = %s", fmtS(num), fmtS(denom), fmtS(root))
 }
 
-// fmtS formats a float without trailing zeros. Private to this package.
 func fmtS(v float64) string {
 	if v == math.Trunc(v) {
 		return fmt.Sprintf("%.0f", v)

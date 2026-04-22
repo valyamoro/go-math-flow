@@ -6,17 +6,11 @@ import (
 	"strings"
 )
 
-// Expr is a node in a mathematical expression tree (AST).
-// This is the foundation for every formula in the system — from "2x+3"
-// to "sin(x²) + ln(x)". All parsers produce an Expr; all solvers consume it.
 type Expr interface {
-	// Eval computes the numeric value given variable bindings.
 	Eval(vars map[string]float64) float64
-	// String returns a human-readable representation.
 	String() string
 }
 
-// Num is a numeric constant leaf node, e.g. 3.14
 type Num struct{ V float64 }
 
 func (n Num) Eval(_ map[string]float64) float64 { return n.V }
@@ -27,13 +21,11 @@ func (n Num) String() string {
 	return fmt.Sprintf("%g", n.V)
 }
 
-// Var is a variable leaf node, e.g. "x", "y", "t"
 type Var struct{ Name string }
 
 func (v Var) Eval(vars map[string]float64) float64 { return vars[v.Name] }
-func (v Var) String() string                        { return v.Name }
+func (v Var) String() string                       { return v.Name }
 
-// BinOp is a binary operation: +  -  *  /  ^
 type BinOp struct {
 	Op   rune
 	L, R Expr
@@ -63,7 +55,6 @@ func (b BinOp) String() string {
 	return fmt.Sprintf("(%s %c %s)", b.L, b.Op, b.R)
 }
 
-// UnaryOp is a unary function or negation: -, sin, cos, tan, ln, log, sqrt, abs
 type UnaryOp struct {
 	Op  string
 	Arg Expr

@@ -9,18 +9,8 @@ import (
 	"strings"
 )
 
-// opRe detects the relation operator in an expression.
-// Order matters: "<=" and ">=" MUST come before "<" and ">" so the longer
-// token is matched first.
 var opRe = regexp.MustCompile(`<=|>=|<|>|=`)
 
-// Parse turns a raw math string into a core.MathProblem.
-// This is the single entry point for all input — as new topics are added,
-// detection logic is added here, and nothing else changes in the pipeline.
-//
-// Currently supported:
-//   - Linear equation:   "2x + 3 = 7"
-//   - Linear inequality: "2x + 3 > 7", "x - 1 <= 4", etc.
 func Parse(s string) (core.MathProblem, error) {
 	s = strings.TrimSpace(s)
 
@@ -32,10 +22,6 @@ func Parse(s string) (core.MathProblem, error) {
 	lhsRaw := strings.TrimSpace(s[:loc[0]])
 	rhsRaw := strings.TrimSpace(s[loc[1]:])
 
-	// --- detect topic ---
-	// Right now the only supported form is linear: Ax + B ⋈ C.
-	// Future: if lhsRaw contains x², dispatch to quadratic; if it has
-	// multiple variables, dispatch to systems, etc.
 	la, lb, err := parseLinearExpr(lhsRaw)
 	if err != nil {
 		return nil, fmt.Errorf("left side %q: %w", lhsRaw, err)
@@ -45,12 +31,9 @@ func Parse(s string) (core.MathProblem, error) {
 		return nil, fmt.Errorf("right side %q: %w", rhsRaw, err)
 	}
 
-	// Reduce to normal form: (la-ra)x + (lb-rb) ⋈ 0
 	return linear.New(la-ra, lb-rb, op, s), nil
 }
 
-// parseLinearExpr parses a string like "2x + 3" or "-x" into (coeffX, constant).
-// Spaces are stripped before processing.
 func parseLinearExpr(expr string) (coeffX, constant float64, err error) {
 	expr = strings.ReplaceAll(expr, " ", "")
 	if expr == "" {
@@ -75,8 +58,6 @@ func parseLinearExpr(expr string) (coeffX, constant float64, err error) {
 	return
 }
 
-// extractCoeff converts the coefficient string in front of x into a float.
-// Handles bare "+", "-" (meaning +1 / -1) and explicit numbers like "3", "-2.5".
 func extractCoeff(s string) float64 {
 	switch s {
 	case "+", "":

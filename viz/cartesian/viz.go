@@ -10,8 +10,6 @@ import (
 
 type m = map[string]interface{}
 
-// CartesianVisualizer renders a 2D Plotly graph for linear problems.
-// It handles both equations (point marker) and inequalities (shaded half-plane).
 type CartesianVisualizer struct{}
 
 func (CartesianVisualizer) Accepts(p core.MathProblem, _ core.Solution) bool {
@@ -44,7 +42,6 @@ func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.V
 func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr string, vp core.Viewport) []m {
 	var traces []m
 
-	// Line: y = Ax + B
 	const nPts = 300
 	xs := make([]float64, nPts)
 	ys := make([]float64, nPts)
@@ -66,7 +63,6 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 	switch ls.SolutionKind() {
 	case core.SolUnique:
 		root := ls.Root()
-		// Dotted vertical guide line at x = root
 		traces = append(traces, m{
 			"type":       "scatter",
 			"x":          []float64{root, root},
@@ -76,7 +72,6 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 			"line":       m{"color": "rgba(0,230,160,0.22)", "width": 1, "dash": "dot"},
 			"hoverinfo":  "skip",
 		})
-		// Root marker
 		label := fmt.Sprintf("x = %s", fmtV(root))
 		traces = append(traces, m{
 			"type":         "scatter",
@@ -93,7 +88,6 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 
 	case core.SolInterval:
 		bound := ls.Bound()
-		// Boundary vertical line — solid for ≤/≥, dashed for </> (open boundary)
 		dash := "solid"
 		if ls.IsStrict() {
 			dash = "dash"
@@ -107,7 +101,6 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 			"line":       m{"color": "rgba(255,180,0,0.5)", "width": 1.5, "dash": dash},
 			"hoverinfo":  "skip",
 		})
-		// Shaded half-plane region
 		var shadeX []float64
 		if ls.IsPositiveDirection() {
 			shadeX = []float64{bound, vp.XMax, vp.XMax, bound}
@@ -116,16 +109,15 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 		}
 		shadeY := []float64{vp.YMin, vp.YMin, vp.YMax, vp.YMax}
 		traces = append(traces, m{
-			"type":        "scatter",
-			"x":           shadeX,
-			"y":           shadeY,
-			"fill":        "toself",
-			"fillcolor":   "rgba(255,180,0,0.07)",
-			"mode":        "none",
-			"showlegend":  false,
-			"hoverinfo":   "skip",
+			"type":       "scatter",
+			"x":          shadeX,
+			"y":          shadeY,
+			"fill":       "toself",
+			"fillcolor":  "rgba(255,180,0,0.07)",
+			"mode":       "none",
+			"showlegend": false,
+			"hoverinfo":  "skip",
 		})
-		// Boundary label
 		label := fmt.Sprintf("x = %s", fmtV(bound))
 		traces = append(traces, m{
 			"type":         "scatter",
@@ -172,7 +164,7 @@ func buildLayout(vp core.Viewport) m {
 			"bordercolor": "rgba(100,150,220,0.15)",
 			"borderwidth": 1,
 			"font":        m{"color": "#8ba8cc", "size": 11, "family": "'Space Mono', monospace"},
-			"x": 0.01, "y": 0.99,
+			"x":           0.01, "y": 0.99,
 			"xanchor": "left", "yanchor": "top",
 		},
 		"margin":    m{"l": 55, "r": 25, "t": 25, "b": 55},
