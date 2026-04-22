@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 	"go-math-flow/core"
-	"go-math-flow/topics/linear"
+	linear "go-math-flow/topics/linear_equations"
 	"regexp"
 	"strconv"
 	"strings"
@@ -22,31 +22,34 @@ func Parse(s string) (core.MathProblem, error) {
 	lhsRaw := strings.TrimSpace(s[:loc[0]])
 	rhsRaw := strings.TrimSpace(s[loc[1]:])
 
-	la, lb, err := parseLinearExpr(lhsRaw)
+	lax, lay, lb, err := parseLinearExpr(lhsRaw)
 	if err != nil {
 		return nil, fmt.Errorf("left side %q: %w", lhsRaw, err)
 	}
-	ra, rb, err := parseLinearExpr(rhsRaw)
+	rax, ray, rb, err := parseLinearExpr(rhsRaw)
 	if err != nil {
 		return nil, fmt.Errorf("right side %q: %w", rhsRaw, err)
 	}
 
-	return linear.New(la-ra, lb-rb, op, s), nil
+	return linear.New(lax-rax, lay-ray, lb-rb, op, s), nil
 }
 
-func parseLinearExpr(expr string) (coeffX, constant float64, err error) {
+func parseLinearExpr(expr string) (coeffX, coeffY, constant float64, err error) {
 	expr = strings.ReplaceAll(expr, " ", "")
 	if expr == "" {
-		return 0, 0, nil
+		return 0, 0, 0, nil
 	}
 	if expr[0] != '+' && expr[0] != '-' {
 		expr = "+" + expr
 	}
 	re := regexp.MustCompile(`[+-][^+-]+`)
 	for _, tok := range re.FindAllString(expr, -1) {
-		if strings.ContainsRune(tok, 'x') {
+		switch {
+		case strings.ContainsRune(tok, 'x'):
 			coeffX += extractCoeff(strings.ReplaceAll(tok, "x", ""))
-		} else {
+		case strings.ContainsRune(tok, 'y'):
+			coeffY += extractCoeff(strings.ReplaceAll(tok, "y", ""))
+		default:
 			v, e := strconv.ParseFloat(tok, 64)
 			if e != nil {
 				err = fmt.Errorf("unrecognised token %q", tok)

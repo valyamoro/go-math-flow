@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-math-flow/core"
-	"go-math-flow/topics/linear"
+	linear "go-math-flow/topics/linear_equations"
 	"math"
 )
 
@@ -42,6 +42,54 @@ func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.V
 func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr string, vp core.Viewport) []m {
 	var traces []m
 
+	if lp.TwoVar {
+		const nPts = 300
+		xs := make([]float64, nPts)
+		ys := make([]float64, nPts)
+		step := (vp.XMax - vp.XMin) / float64(nPts-1)
+		for i := range xs {
+			x := vp.XMin + float64(i)*step
+			xs[i] = x
+			ys[i] = lp.A*x + lp.B
+		}
+		label := ls.Describe()
+		traces = append(traces, m{
+			"type": "scatter",
+			"x":    xs,
+			"y":    ys,
+			"mode": "lines",
+			"name": label,
+			"line": m{"color": "#4EC9DC", "width": 2.8},
+		})
+		return traces
+	}
+
+	if ls.SolutionKind() == core.SolUnique {
+		root := ls.Root()
+		label := fmt.Sprintf("x = %s", fmtV(root))
+		traces = append(traces, m{
+			"type": "scatter",
+			"x":    []float64{root, root},
+			"y":    []float64{vp.YMin, vp.YMax},
+			"mode": "lines",
+			"name": label,
+			"line": m{"color": "#00e6a0", "width": 2.8},
+		})
+		traces = append(traces, m{
+			"type":         "scatter",
+			"x":            []float64{root},
+			"y":            []float64{0},
+			"mode":         "markers+text",
+			"text":         []string{label},
+			"textposition": "top right",
+			"textfont":     m{"color": "#00e6a0", "size": 11, "family": "Fira Code, monospace"},
+			"marker":       m{"color": "#00e6a0", "size": 9, "line": m{"color": "#0a1628", "width": 2}},
+			"showlegend":   false,
+			"hoverinfo":    "text",
+		})
+		return traces
+	}
+
 	const nPts = 300
 	xs := make([]float64, nPts)
 	ys := make([]float64, nPts)
@@ -61,31 +109,6 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 	})
 
 	switch ls.SolutionKind() {
-	case core.SolUnique:
-		root := ls.Root()
-		traces = append(traces, m{
-			"type":       "scatter",
-			"x":          []float64{root, root},
-			"y":          []float64{vp.YMin, vp.YMax},
-			"mode":       "lines",
-			"showlegend": false,
-			"line":       m{"color": "rgba(0,230,160,0.22)", "width": 1, "dash": "dot"},
-			"hoverinfo":  "skip",
-		})
-		label := fmt.Sprintf("x = %s", fmtV(root))
-		traces = append(traces, m{
-			"type":         "scatter",
-			"x":            []float64{root},
-			"y":            []float64{0},
-			"mode":         "markers+text",
-			"text":         []string{label},
-			"textposition": "top right",
-			"textfont":     m{"color": "#00e6a0", "size": 11, "family": "Fira Code, monospace"},
-			"marker":       m{"color": "#00e6a0", "size": 9, "line": m{"color": "#0a1628", "width": 2}},
-			"name":         "Root",
-			"hoverinfo":    "text",
-		})
-
 	case core.SolInterval:
 		bound := ls.Bound()
 		dash := "solid"

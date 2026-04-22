@@ -335,6 +335,11 @@ const htmlTemplate = `<!DOCTYPE html>
         <span class="status-icon">∞</span>
         All real numbers
       </div>
+      {{else if eq .Sidebar.ResultKind "line"}}
+      <div class="status-box ok">
+        <span class="status-icon">∕</span>
+        Linear function
+      </div>
       {{else if eq .Sidebar.ResultKind "interval"}}
       <div class="status-box ok">
         <span class="status-icon">◁▷</span>
@@ -342,6 +347,13 @@ const htmlTemplate = `<!DOCTYPE html>
       </div>
       {{end}}
     </div>
+
+    {{if eq .Sidebar.ResultKind "line"}}
+    <div class="sidebar-section">
+      <div class="section-label">Function</div>
+      <div class="root-box">{{.Sidebar.Solution}}</div>
+    </div>
+    {{end}}
 
     {{if eq .Sidebar.ResultKind "unique"}}
     <div class="sidebar-section">

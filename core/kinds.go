@@ -20,4 +20,5 @@ const (
 	SolInterval
 	SolSet
 	SolVector
+	SolLine // 2-var: y = Ax + B
 )

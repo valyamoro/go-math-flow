@@ -10,7 +10,7 @@ import (
 
 	"go-math-flow/core"
 	"go-math-flow/parser"
-	"go-math-flow/topics/linear"
+	"go-math-flow/topics/linear_equations"
 	_ "go-math-flow/viz/cartesian"
 )
 
@@ -26,12 +26,7 @@ var tmplFuncs = template.FuncMap{
 	"fmtF": fmtF,
 }
 
-func fmtF(v float64) string {
-	if v == math.Trunc(v) {
-		return fmt.Sprintf("%.0f", v)
-	}
-	return fmt.Sprintf("%g", v)
-}
+
 
 func renderHTML(pd PageData, outPath string) error {
 	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
@@ -109,3 +104,4 @@ func main() {
 	}
 	fmt.Println("Done →", out)
 }
+
