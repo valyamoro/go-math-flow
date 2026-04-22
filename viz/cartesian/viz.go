@@ -99,6 +99,10 @@ func buildEquationTraces(lp linear.LinearProblem, ls linear.LinearSolution, vp c
 func buildInequalityTraces(ip ineq.InequalityProblem, is ineq.InequalitySolution, vp core.Viewport) []m {
 	var traces []m
 
+	if ip.TwoVar {
+		return buildHalfPlaneTraces(ip, is, vp)
+	}
+
 	if is.SolutionKind() != core.SolInterval {
 		return traces
 	}
@@ -147,6 +151,54 @@ func buildInequalityTraces(ip ineq.InequalityProblem, is ineq.InequalitySolution
 		"marker":       m{"color": "#ffd166", "size": 9, "line": m{"color": "#0a1628", "width": 2}},
 		"showlegend":   false,
 		"hoverinfo":    "text",
+	})
+
+	return traces
+}
+
+func buildHalfPlaneTraces(ip ineq.InequalityProblem, is ineq.InequalitySolution, vp core.Viewport) []m {
+	var traces []m
+
+	const nPts = 300
+	xs := make([]float64, nPts)
+	ys := make([]float64, nPts)
+	step := (vp.XMax - vp.XMin) / float64(nPts-1)
+	for i := range xs {
+		x := vp.XMin + float64(i)*step
+		xs[i] = x
+		ys[i] = ip.A*x + ip.B
+	}
+
+	dash := "solid"
+	if is.IsStrict() {
+		dash = "dash"
+	}
+	traces = append(traces, m{
+		"type": "scatter",
+		"x":    xs,
+		"y":    ys,
+		"mode": "lines",
+		"name": is.Describe(),
+		"line": m{"color": "rgba(255,180,0,0.85)", "width": 2.5, "dash": dash},
+	})
+
+	var shadeX, shadeY []float64
+	if is.IsPositiveDirection() {
+		shadeX = []float64{vp.XMin, vp.XMax, vp.XMax, vp.XMin}
+		shadeY = []float64{ip.A*vp.XMin + ip.B, ip.A*vp.XMax + ip.B, vp.YMax, vp.YMax}
+	} else {
+		shadeX = []float64{vp.XMin, vp.XMax, vp.XMax, vp.XMin}
+		shadeY = []float64{ip.A*vp.XMin + ip.B, ip.A*vp.XMax + ip.B, vp.YMin, vp.YMin}
+	}
+	traces = append(traces, m{
+		"type":       "scatter",
+		"x":          shadeX,
+		"y":          shadeY,
+		"fill":       "toself",
+		"fillcolor":  "rgba(255,180,0,0.08)",
+		"mode":       "none",
+		"showlegend": false,
+		"hoverinfo":  "skip",
 	})
 
 	return traces

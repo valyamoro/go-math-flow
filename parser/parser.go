@@ -36,11 +36,7 @@ func Parse(s string) (core.MathProblem, error) {
 		return linear.New(lax-rax, lay-ray, lb-rb, op, s), nil
 	}
 
-	netY := lay - ray
-	if netY != 0 {
-		return nil, fmt.Errorf("two-variable inequalities are not supported")
-	}
-	return ineq.New(lax-rax, lb-rb, op, s), nil
+	return ineq.New(lax-rax, lay-ray, lb-rb, op, s), nil
 }
 
 func parseLinearExpr(expr string) (coeffX, coeffY, constant float64, err error) {

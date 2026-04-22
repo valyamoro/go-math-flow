@@ -345,8 +345,20 @@ const htmlTemplate = `<!DOCTYPE html>
         <span class="status-icon">◁▷</span>
         Interval
       </div>
+      {{else if eq .Sidebar.ResultKind "halfplane"}}
+      <div class="status-box ok">
+        <span class="status-icon">◪</span>
+        Half-plane
+      </div>
       {{end}}
     </div>
+
+    {{if eq .Sidebar.ResultKind "halfplane"}}
+    <div class="sidebar-section">
+      <div class="section-label">Region</div>
+      <div class="root-box">{{.Sidebar.Solution}}</div>
+    </div>
+    {{end}}
 
     {{if eq .Sidebar.ResultKind "interval"}}
     <div class="sidebar-section">

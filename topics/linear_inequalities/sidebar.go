@@ -8,12 +8,20 @@ import (
 )
 
 func BuildSidebar(ip InequalityProblem, is InequalitySolution) core.SidebarData {
+	var standard string
+	if ip.TwoVar {
+		standard = buildStdForm2Var(ip.A, ip.B, ip.Op)
+	} else {
+		standard = buildStdForm(ip.A, ip.B, ip.Op)
+	}
 	sd := core.SidebarData{
 		Original: ip.Original(),
-		Standard: buildStdForm(ip.A, ip.B, ip.Op),
+		Standard: standard,
 		Solution: is.Describe(),
 	}
 	switch is.SolutionKind() {
+	case core.SolHalfPlane:
+		sd.ResultKind = "halfplane"
 	case core.SolInterval:
 		sd.ResultKind = "interval"
 		sd.StepMul = buildStepMul(ip.A, ip.B, ip.Op)
@@ -24,6 +32,26 @@ func BuildSidebar(ip InequalityProblem, is InequalitySolution) core.SidebarData 
 		sd.ResultKind = "infinite"
 	}
 	return sd
+}
+
+func buildStdForm2Var(A, B float64, op string) string {
+	var sb strings.Builder
+	sb.WriteString("y")
+	const eps = 1e-12
+	switch {
+	case A > eps:
+		sb.WriteString(" - " + fmtS(A) + "x")
+	case A < -eps:
+		sb.WriteString(" + " + fmtS(-A) + "x")
+	}
+	switch {
+	case B > eps:
+		sb.WriteString(" - " + fmtS(B))
+	case B < -eps:
+		sb.WriteString(" + " + fmtS(-B))
+	}
+	sb.WriteString(" " + op + " 0")
+	return sb.String()
 }
 
 func buildStdForm(A, B float64, op string) string {

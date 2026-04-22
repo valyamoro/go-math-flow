@@ -19,6 +19,18 @@ func (InequalitySolver) Solve(p core.MathProblem) (core.Solution, error) {
 	}
 
 	const eps = 1e-12
+	if ip.TwoVar {
+		positive := ip.Op == ">" || ip.Op == ">="
+		strict := ip.Op == "<" || ip.Op == ">"
+		return InequalitySolution{
+			kind:      core.SolHalfPlane,
+			slope:     ip.A,
+			intercept: ip.B,
+			op:        ip.Op,
+			positive:  positive,
+			strict:    strict,
+		}, nil
+	}
 	if math.Abs(ip.A) < eps {
 		if evalConst(ip.B, ip.Op) {
 			return InequalitySolution{kind: core.SolInfinite, op: ip.Op}, nil
