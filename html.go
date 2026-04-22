@@ -308,11 +308,11 @@ const htmlTemplate = `<!DOCTYPE html>
       <div class="eq-list">
         <div class="eq-row">
           <span class="eq-tag">input</span>
-          <span class="eq-label">{{.Eq.Original}}</span>
+          <span class="eq-label">{{.Sidebar.Original}}</span>
         </div>
         <div class="eq-row">
           <span class="eq-tag">standard</span>
-          <span class="eq-label">{{.Eq.Standard}}</span>
+          <span class="eq-label">{{.Sidebar.Standard}}</span>
         </div>
       </div>
     </div>
@@ -320,29 +320,33 @@ const htmlTemplate = `<!DOCTYPE html>
     <!-- Result -->
     <div class="sidebar-section">
       <div class="section-label">Result</div>
-      {{if isUnique .Eq.Kind}}
+      {{if eq .Sidebar.ResultKind "unique"}}
       <div class="status-box ok">
         <span class="status-icon">✓</span>
         One root
       </div>
-      {{else if isNone .Eq.Kind}}
+      {{else if eq .Sidebar.ResultKind "none"}}
       <div class="status-box fail">
         <span class="status-icon">✗</span>
         No solution
       </div>
-      {{else}}
+      {{else if eq .Sidebar.ResultKind "infinite"}}
       <div class="status-box infinite">
         <span class="status-icon">∞</span>
         All real numbers
       </div>
+      {{else if eq .Sidebar.ResultKind "interval"}}
+      <div class="status-box ok">
+        <span class="status-icon">◁▷</span>
+        {{.Sidebar.Solution}}
+      </div>
       {{end}}
     </div>
 
-    <!-- Root value -->
-    {{if .Eq.HasRoot}}
+    {{if eq .Sidebar.ResultKind "unique"}}
     <div class="sidebar-section">
       <div class="section-label">Root</div>
-      <div class="root-box">x = {{fmtF .Eq.Root}}</div>
+      <div class="root-box">{{.Sidebar.Solution}}</div>
     </div>
 
     <!-- Method -->
@@ -351,15 +355,15 @@ const htmlTemplate = `<!DOCTYPE html>
       <div class="step-list">
         <div class="step-row">
           <span class="step-num">①</span>
-          <span class="step-text">{{.Eq.Standard}}</span>
+          <span class="step-text">{{.Sidebar.Standard}}</span>
         </div>
         <div class="step-row">
           <span class="step-num">②</span>
-          <span class="step-text">{{.Eq.StepMul}}</span>
+          <span class="step-text">{{.Sidebar.StepMul}}</span>
         </div>
         <div class="step-row">
           <span class="step-num">③</span>
-          <span class="step-text">{{.Eq.StepDiv}}</span>
+          <span class="step-text">{{.Sidebar.StepDiv}}</span>
         </div>
       </div>
     </div>

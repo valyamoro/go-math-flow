@@ -14,10 +14,25 @@ import (
 	_ "go-math-flow/viz/cartesian" // registers CartesianVisualizer via init()
 )
 
+// PageData is the complete context passed to the HTML template.
+// It contains only display-ready data — no math logic.
+type PageData struct {
+	TracesJSON template.JS
+	LayoutJSON template.JS
+	Sidebar    linear.SidebarData
+	XMin, XMax float64
+	YMin, YMax float64
+}
+
 var tmplFuncs = template.FuncMap{
-	"fmtF":     fmtF,
-	"isUnique": func(k SolutionKind) bool { return k == SolutionUnique },
-	"isNone":   func(k SolutionKind) bool { return k == SolutionNone },
+	"fmtF": fmtF,
+}
+
+func fmtF(v float64) string {
+	if v == math.Trunc(v) {
+		return fmt.Sprintf("%.0f", v)
+	}
+	return fmt.Sprintf("%g", v)
 }
 
 func renderHTML(pd PageData, outPath string) error {
@@ -84,8 +99,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Build PageData for the existing HTML template
-	pd := newPageData(lp, solution, rd, vp)
+	ls := solution.(linear.LinearSolution)
+	pd := PageData{
+		TracesJSON: template.JS(rd.TracesJSON),
+		LayoutJSON: template.JS(rd.LayoutJSON),
+		Sidebar:    linear.BuildSidebar(lp, ls),
+		XMin: xmin, XMax: xmax,
+		YMin: ymin, YMax: ymax,
+	}
 	if err := renderHTML(pd, out); err != nil {
 		fmt.Fprintf(os.Stderr, "html error: %v\n", err)
 		os.Exit(1)
@@ -93,43 +114,4 @@ func main() {
 	fmt.Println("Done →", out)
 }
 
-// newPageData bridges core.RenderData + LinearSolution into the legacy PageData
-// that the HTML template expects. This adapter will shrink once the template is
-// migrated in a later step.
-func newPageData(lp linear.LinearProblem, sol core.Solution, rd core.RenderData, vp core.Viewport) PageData {
-	ls := sol.(linear.LinearSolution)
 
-	ei := EqInfo{
-		Original: lp.Original(),
-		Standard: buildStandardForm(lp.A, lp.B),
-		FuncStr:  buildFuncStr(lp.A, lp.B),
-		Kind:     legacyKind(ls.SolutionKind()),
-	}
-	if ls.SolutionKind() == core.SolUnique {
-		ei.Root = ls.Root()
-		ei.HasRoot = true
-		ei.StepMul = buildStepMul(lp.A, lp.B)
-		ei.StepDiv = buildStepDiv(lp.A, lp.B)
-	}
-
-	return PageData{
-		TracesJSON: template.JS(rd.TracesJSON),
-		LayoutJSON: template.JS(rd.LayoutJSON),
-		Eq:         ei,
-		XMin:       vp.XMin, XMax: vp.XMax,
-		YMin: vp.YMin, YMax: vp.YMax,
-	}
-}
-
-// legacyKind maps core.SolutionKind back to the old SolutionKind enum so the
-// existing HTML template keeps working without changes.
-func legacyKind(k core.SolutionKind) SolutionKind {
-	switch k {
-	case core.SolUnique:
-		return SolutionUnique
-	case core.SolNone:
-		return SolutionNone
-	default:
-		return SolutionInfinite
-	}
-}
