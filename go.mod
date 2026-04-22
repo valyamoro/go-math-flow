@@ -1,3 +1,3 @@
-module linear_equation
+module go-math-flow
 
 go 1.22
