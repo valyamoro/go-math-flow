@@ -7,18 +7,8 @@ import (
 	"strings"
 )
 
-type SidebarData struct {
-	Original   string
-	Standard   string
-	Solution   string
-	ResultKind string
-	Root       float64
-	StepMul    string
-	StepDiv    string
-}
-
-func BuildSidebar(lp LinearProblem, ls LinearSolution) SidebarData {
-	sd := SidebarData{
+func BuildSidebar(lp LinearProblem, ls LinearSolution) core.SidebarData {
+	sd := core.SidebarData{
 		Original: lp.Original(),
 		Standard: buildStdForm(lp.A, lp.B),
 		Solution: ls.Describe(),

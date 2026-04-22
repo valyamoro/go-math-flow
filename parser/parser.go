@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-math-flow/core"
 	linear "go-math-flow/topics/linear_equations"
+	ineq "go-math-flow/topics/linear_inequalities"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,9 +20,6 @@ func Parse(s string) (core.MathProblem, error) {
 		return nil, fmt.Errorf("no relation operator found in %q", s)
 	}
 	op := s[loc[0]:loc[1]]
-	if op != "=" {
-		return nil, fmt.Errorf("unsupported operator %q: only \"=\" is accepted", op)
-	}
 	lhsRaw := strings.TrimSpace(s[:loc[0]])
 	rhsRaw := strings.TrimSpace(s[loc[1]:])
 
@@ -34,7 +32,15 @@ func Parse(s string) (core.MathProblem, error) {
 		return nil, fmt.Errorf("right side %q: %w", rhsRaw, err)
 	}
 
-	return linear.New(lax-rax, lay-ray, lb-rb, op, s), nil
+	if op == "=" {
+		return linear.New(lax-rax, lay-ray, lb-rb, op, s), nil
+	}
+
+	netY := lay - ray
+	if netY != 0 {
+		return nil, fmt.Errorf("two-variable inequalities are not supported")
+	}
+	return ineq.New(lax-rax, lb-rb, op, s), nil
 }
 
 func parseLinearExpr(expr string) (coeffX, coeffY, constant float64, err error) {

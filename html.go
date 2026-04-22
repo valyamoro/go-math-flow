@@ -340,8 +340,37 @@ const htmlTemplate = `<!DOCTYPE html>
         <span class="status-icon">∕</span>
         Linear function
       </div>
+      {{else if eq .Sidebar.ResultKind "interval"}}
+      <div class="status-box ok">
+        <span class="status-icon">◁▷</span>
+        Interval
+      </div>
       {{end}}
     </div>
+
+    {{if eq .Sidebar.ResultKind "interval"}}
+    <div class="sidebar-section">
+      <div class="section-label">Solution</div>
+      <div class="root-box">{{.Sidebar.Solution}}</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="section-label">Method</div>
+      <div class="step-list">
+        <div class="step-row">
+          <span class="step-num">①</span>
+          <span class="step-text">{{.Sidebar.Standard}}</span>
+        </div>
+        <div class="step-row">
+          <span class="step-num">②</span>
+          <span class="step-text">{{.Sidebar.StepMul}}</span>
+        </div>
+        <div class="step-row">
+          <span class="step-num">③</span>
+          <span class="step-text">{{.Sidebar.StepDiv}}</span>
+        </div>
+      </div>
+    </div>
+    {{end}}
 
     {{if eq .Sidebar.ResultKind "line"}}
     <div class="sidebar-section">

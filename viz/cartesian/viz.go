@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-math-flow/core"
 	linear "go-math-flow/topics/linear_equations"
+	ineq "go-math-flow/topics/linear_inequalities"
 	"math"
 )
 
@@ -17,13 +18,15 @@ func (CartesianVisualizer) Accepts(p core.MathProblem, _ core.Solution) bool {
 }
 
 func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.Viewport) (core.RenderData, error) {
-	lp := p.(linear.LinearProblem)
-	ls := s.(linear.LinearSolution)
+	var traces []m
+	switch prob := p.(type) {
+	case linear.LinearProblem:
+		traces = buildEquationTraces(prob, s.(linear.LinearSolution), vp)
+	case ineq.InequalityProblem:
+		traces = buildInequalityTraces(prob, s.(ineq.InequalitySolution), vp)
+	}
 
-	funcStr := buildFuncStr(lp.A, lp.B)
-	traces := buildTraces(lp, ls, funcStr, vp)
 	layout := buildLayout(vp)
-
 	tj, err := json.Marshal(traces)
 	if err != nil {
 		return core.RenderData{}, err
@@ -39,7 +42,7 @@ func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.V
 	}, nil
 }
 
-func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr string, vp core.Viewport) []m {
+func buildEquationTraces(lp linear.LinearProblem, ls linear.LinearSolution, vp core.Viewport) []m {
 	var traces []m
 
 	if lp.TwoVar {
@@ -89,6 +92,62 @@ func buildTraces(lp linear.LinearProblem, ls linear.LinearSolution, funcStr stri
 		})
 		return traces
 	}
+
+	return traces
+}
+
+func buildInequalityTraces(ip ineq.InequalityProblem, is ineq.InequalitySolution, vp core.Viewport) []m {
+	var traces []m
+
+	if is.SolutionKind() != core.SolInterval {
+		return traces
+	}
+
+	bound := is.Bound()
+	dash := "solid"
+	if is.IsStrict() {
+		dash = "dash"
+	}
+	traces = append(traces, m{
+		"type":       "scatter",
+		"x":          []float64{bound, bound},
+		"y":          []float64{vp.YMin, vp.YMax},
+		"mode":       "lines",
+		"name":       is.Describe(),
+		"line":       m{"color": "rgba(255,180,0,0.7)", "width": 2, "dash": dash},
+	})
+
+	var shadeX []float64
+	if is.IsPositiveDirection() {
+		shadeX = []float64{bound, vp.XMax, vp.XMax, bound}
+	} else {
+		shadeX = []float64{vp.XMin, bound, bound, vp.XMin}
+	}
+	shadeY := []float64{vp.YMin, vp.YMin, vp.YMax, vp.YMax}
+	traces = append(traces, m{
+		"type":       "scatter",
+		"x":          shadeX,
+		"y":          shadeY,
+		"fill":       "toself",
+		"fillcolor":  "rgba(255,180,0,0.08)",
+		"mode":       "none",
+		"showlegend": false,
+		"hoverinfo":  "skip",
+	})
+
+	label := fmt.Sprintf("x = %s", fmtV(bound))
+	traces = append(traces, m{
+		"type":         "scatter",
+		"x":            []float64{bound},
+		"y":            []float64{0},
+		"mode":         "markers+text",
+		"text":         []string{label},
+		"textposition": "top right",
+		"textfont":     m{"color": "#ffd166", "size": 11, "family": "Fira Code, monospace"},
+		"marker":       m{"color": "#ffd166", "size": 9, "line": m{"color": "#0a1628", "width": 2}},
+		"showlegend":   false,
+		"hoverinfo":    "text",
+	})
 
 	return traces
 }
