@@ -1,0 +1,89 @@
+package parser
+
+import (
+	"fmt"
+	"go-math-flow/core"
+	"go-math-flow/topics/linear"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+// opRe detects the relation operator in an expression.
+// Order matters: "<=" and ">=" MUST come before "<" and ">" so the longer
+// token is matched first.
+var opRe = regexp.MustCompile(`<=|>=|<|>|=`)
+
+// Parse turns a raw math string into a core.MathProblem.
+// This is the single entry point for all input — as new topics are added,
+// detection logic is added here, and nothing else changes in the pipeline.
+//
+// Currently supported:
+//   - Linear equation:   "2x + 3 = 7"
+//   - Linear inequality: "2x + 3 > 7", "x - 1 <= 4", etc.
+func Parse(s string) (core.MathProblem, error) {
+	s = strings.TrimSpace(s)
+
+	loc := opRe.FindStringIndex(s)
+	if loc == nil {
+		return nil, fmt.Errorf("no relation operator found in %q", s)
+	}
+	op := s[loc[0]:loc[1]]
+	lhsRaw := strings.TrimSpace(s[:loc[0]])
+	rhsRaw := strings.TrimSpace(s[loc[1]:])
+
+	// --- detect topic ---
+	// Right now the only supported form is linear: Ax + B ⋈ C.
+	// Future: if lhsRaw contains x², dispatch to quadratic; if it has
+	// multiple variables, dispatch to systems, etc.
+	la, lb, err := parseLinearExpr(lhsRaw)
+	if err != nil {
+		return nil, fmt.Errorf("left side %q: %w", lhsRaw, err)
+	}
+	ra, rb, err := parseLinearExpr(rhsRaw)
+	if err != nil {
+		return nil, fmt.Errorf("right side %q: %w", rhsRaw, err)
+	}
+
+	// Reduce to normal form: (la-ra)x + (lb-rb) ⋈ 0
+	return linear.New(la-ra, lb-rb, op, s), nil
+}
+
+// parseLinearExpr parses a string like "2x + 3" or "-x" into (coeffX, constant).
+// Spaces are stripped before processing.
+func parseLinearExpr(expr string) (coeffX, constant float64, err error) {
+	expr = strings.ReplaceAll(expr, " ", "")
+	if expr == "" {
+		return 0, 0, nil
+	}
+	if expr[0] != '+' && expr[0] != '-' {
+		expr = "+" + expr
+	}
+	re := regexp.MustCompile(`[+-][^+-]+`)
+	for _, tok := range re.FindAllString(expr, -1) {
+		if strings.ContainsRune(tok, 'x') {
+			coeffX += extractCoeff(strings.ReplaceAll(tok, "x", ""))
+		} else {
+			v, e := strconv.ParseFloat(tok, 64)
+			if e != nil {
+				err = fmt.Errorf("unrecognised token %q", tok)
+				return
+			}
+			constant += v
+		}
+	}
+	return
+}
+
+// extractCoeff converts the coefficient string in front of x into a float.
+// Handles bare "+", "-" (meaning +1 / -1) and explicit numbers like "3", "-2.5".
+func extractCoeff(s string) float64 {
+	switch s {
+	case "+", "":
+		return 1
+	case "-":
+		return -1
+	}
+	v, _ := strconv.ParseFloat(s, 64)
+	return v
+}
