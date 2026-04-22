@@ -10,12 +10,8 @@ import (
 type LinearSolution struct {
 	kind      core.SolutionKind
 	root      float64
-	bound     float64
 	slope     float64
 	intercept float64
-	op        string
-	strict    bool
-	positive  bool
 }
 
 func (s LinearSolution) SolutionKind() core.SolutionKind { return s.kind }
@@ -30,27 +26,13 @@ func (s LinearSolution) Describe() string {
 		return "x ∈ ℝ"
 	case core.SolLine:
 		return buildSlopeInterceptStr(s.slope, s.intercept)
-	case core.SolInterval:
-		if s.positive {
-			if s.strict {
-				return fmt.Sprintf("x > %s", fmtV(s.bound))
-			}
-			return fmt.Sprintf("x ≥ %s", fmtV(s.bound))
-		}
-		if s.strict {
-			return fmt.Sprintf("x < %s", fmtV(s.bound))
-		}
-		return fmt.Sprintf("x ≤ %s", fmtV(s.bound))
 	}
 	return ""
 }
 
-func (s LinearSolution) Root() float64             { return s.root }
-func (s LinearSolution) Bound() float64            { return s.bound }
-func (s LinearSolution) IsPositiveDirection() bool { return s.positive }
-func (s LinearSolution) IsStrict() bool            { return s.strict }
-func (s LinearSolution) Slope() float64            { return s.slope }
-func (s LinearSolution) Intercept() float64        { return s.intercept }
+func (s LinearSolution) Root() float64      { return s.root }
+func (s LinearSolution) Slope() float64     { return s.slope }
+func (s LinearSolution) Intercept() float64 { return s.intercept }
 
 func buildSlopeInterceptStr(a, b float64) string {
 	const eps = 1e-12

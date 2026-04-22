@@ -19,6 +19,9 @@ func Parse(s string) (core.MathProblem, error) {
 		return nil, fmt.Errorf("no relation operator found in %q", s)
 	}
 	op := s[loc[0]:loc[1]]
+	if op != "=" {
+		return nil, fmt.Errorf("unsupported operator %q: only \"=\" is accepted", op)
+	}
 	lhsRaw := strings.TrimSpace(s[:loc[0]])
 	rhsRaw := strings.TrimSpace(s[loc[1]:])
 

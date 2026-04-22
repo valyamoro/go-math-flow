@@ -8,7 +8,6 @@ import (
 type LinearProblem struct {
 	A        float64
 	B        float64
-	Op       string
 	TwoVar   bool
 	original string
 }
@@ -21,19 +20,15 @@ func New(netX, netY, netConst float64, op, original string) LinearProblem {
 		return LinearProblem{
 			A:        -netX / netY,
 			B:        -netConst / netY,
-			Op:       op,
 			TwoVar:   true,
 			original: original,
 		}
 	}
-	return LinearProblem{A: netX, B: netConst, Op: op, original: original}
+	return LinearProblem{A: netX, B: netConst, original: original}
 }
 
 func (p LinearProblem) Kind() core.ProblemKind {
-	if p.Op == "=" {
-		return core.KindLinearEquation
-	}
-	return core.KindLinearInequality
+	return core.KindLinearEquation
 }
 
 func (p LinearProblem) Original() string { return p.original }

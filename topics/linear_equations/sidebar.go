@@ -20,7 +20,7 @@ type SidebarData struct {
 func BuildSidebar(lp LinearProblem, ls LinearSolution) SidebarData {
 	sd := SidebarData{
 		Original: lp.Original(),
-		Standard: buildStdForm(lp.A, lp.B, lp.Op),
+		Standard: buildStdForm(lp.A, lp.B),
 		Solution: ls.Describe(),
 	}
 	switch ls.SolutionKind() {
@@ -35,13 +35,11 @@ func BuildSidebar(lp LinearProblem, ls LinearSolution) SidebarData {
 		sd.ResultKind = "infinite"
 	case core.SolLine:
 		sd.ResultKind = "line"
-	case core.SolInterval:
-		sd.ResultKind = "interval"
 	}
 	return sd
 }
 
-func buildStdForm(A, B float64, op string) string {
+func buildStdForm(A, B float64) string {
 	var sb strings.Builder
 	const eps = 1e-12
 	switch {
@@ -57,7 +55,7 @@ func buildStdForm(A, B float64, op string) string {
 	} else if B < -eps {
 		sb.WriteString(" - " + fmtS(-B))
 	}
-	sb.WriteString(" " + op + " 0")
+	sb.WriteString(" = 0")
 	return sb.String()
 }
 

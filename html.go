@@ -340,11 +340,6 @@ const htmlTemplate = `<!DOCTYPE html>
         <span class="status-icon">∕</span>
         Linear function
       </div>
-      {{else if eq .Sidebar.ResultKind "interval"}}
-      <div class="status-box ok">
-        <span class="status-icon">◁▷</span>
-        {{.Sidebar.Solution}}
-      </div>
       {{end}}
     </div>
 

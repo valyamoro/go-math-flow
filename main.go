@@ -69,7 +69,7 @@ func main() {
 	}
 
 	lp := problem.(linear.LinearProblem)
-	fmt.Printf("Input: %s  →  A=%-6g B=%-6g op=%s\n", rawEq, lp.A, lp.B, lp.Op)
+	fmt.Printf("Input: %s  →  A=%-6g B=%-6g\n", rawEq, lp.A, lp.B)
 
 	if math.Abs(lp.A) < 1e-12 {
 		ymin = lp.B - 5
