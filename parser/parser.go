@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 	"go-math-flow/core"
-	linear "go-math-flow/topics/linear_equations"
+	equat "go-math-flow/topics/linear_equations"
 	ineq "go-math-flow/topics/linear_inequalities"
 	"regexp"
 	"strconv"
@@ -33,7 +33,7 @@ func Parse(s string) (core.MathProblem, error) {
 	}
 
 	if op == "=" {
-		return linear.New(lax-rax, lay-ray, lb-rb, op, s), nil
+		return equat.New(lax-rax, lay-ray, lb-rb, op, s), nil
 	}
 
 	return ineq.New(lax-rax, lay-ray, lb-rb, op, s), nil

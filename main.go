@@ -10,7 +10,7 @@ import (
 
 	"go-math-flow/core"
 	"go-math-flow/parser"
-	linear "go-math-flow/topics/linear_equations"
+	equat "go-math-flow/topics/linear_equations"
 	ineq "go-math-flow/topics/linear_inequalities"
 	_ "go-math-flow/viz/cartesian"
 )
@@ -69,7 +69,7 @@ func main() {
 
 	var sidebar core.SidebarData
 	switch p := problem.(type) {
-	case linear.LinearProblem:
+	case equat.LinearProblem:
 		fmt.Printf("Input: %s  \u2192  A=%-6g B=%-6g\n", rawEq, p.A, p.B)
 		if math.Abs(p.A) < 1e-12 {
 			ymin = p.B - 5
@@ -87,13 +87,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "render error: %v\n", err)
 			os.Exit(1)
 		}
-		sidebar = linear.BuildSidebar(p, solution.(linear.LinearSolution))
+		sidebar = equat.BuildSidebar(p, solution.(equat.LinearSolution))
 		pd := PageData{
 			TracesJSON: template.JS(rd.TracesJSON),
 			LayoutJSON: template.JS(rd.LayoutJSON),
 			Sidebar:    sidebar,
 			XMin:       xmin, XMax: xmax,
-			YMin:       ymin, YMax: ymax,
+			YMin: ymin, YMax: ymax,
 		}
 		if err := renderHTML(pd, out); err != nil {
 			fmt.Fprintf(os.Stderr, "html error: %v\n", err)
@@ -119,7 +119,7 @@ func main() {
 			LayoutJSON: template.JS(rd.LayoutJSON),
 			Sidebar:    sidebar,
 			XMin:       xmin, XMax: xmax,
-			YMin:       ymin, YMax: ymax,
+			YMin: ymin, YMax: ymax,
 		}
 		if err := renderHTML(pd, out); err != nil {
 			fmt.Fprintf(os.Stderr, "html error: %v\n", err)

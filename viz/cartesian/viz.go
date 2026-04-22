@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-math-flow/core"
-	linear "go-math-flow/topics/linear_equations"
+	equat "go-math-flow/topics/linear_equations"
 	ineq "go-math-flow/topics/linear_inequalities"
 	"math"
 )
@@ -20,8 +20,8 @@ func (CartesianVisualizer) Accepts(p core.MathProblem, _ core.Solution) bool {
 func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.Viewport) (core.RenderData, error) {
 	var traces []m
 	switch prob := p.(type) {
-	case linear.LinearProblem:
-		traces = buildEquationTraces(prob, s.(linear.LinearSolution), vp)
+	case equat.LinearProblem:
+		traces = buildEquationTraces(prob, s.(equat.LinearSolution), vp)
 	case ineq.InequalityProblem:
 		traces = buildInequalityTraces(prob, s.(ineq.InequalitySolution), vp)
 	}
@@ -42,7 +42,7 @@ func (CartesianVisualizer) Render(p core.MathProblem, s core.Solution, vp core.V
 	}, nil
 }
 
-func buildEquationTraces(lp linear.LinearProblem, ls linear.LinearSolution, vp core.Viewport) []m {
+func buildEquationTraces(lp equat.LinearProblem, ls equat.LinearSolution, vp core.Viewport) []m {
 	var traces []m
 
 	if lp.TwoVar {
@@ -113,12 +113,12 @@ func buildInequalityTraces(ip ineq.InequalityProblem, is ineq.InequalitySolution
 		dash = "dash"
 	}
 	traces = append(traces, m{
-		"type":       "scatter",
-		"x":          []float64{bound, bound},
-		"y":          []float64{vp.YMin, vp.YMax},
-		"mode":       "lines",
-		"name":       is.Describe(),
-		"line":       m{"color": "rgba(255,180,0,0.7)", "width": 2, "dash": dash},
+		"type": "scatter",
+		"x":    []float64{bound, bound},
+		"y":    []float64{vp.YMin, vp.YMax},
+		"mode": "lines",
+		"name": is.Describe(),
+		"line": m{"color": "rgba(255,180,0,0.7)", "width": 2, "dash": dash},
 	})
 
 	var shadeX []float64

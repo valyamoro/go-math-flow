@@ -2,7 +2,7 @@ package parser
 
 import (
 	"go-math-flow/core"
-	linear "go-math-flow/topics/linear_equations"
+	equat "go-math-flow/topics/linear_equations"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func TestParse_LinearEquation(t *testing.T) {
 	if p.Kind() != core.KindLinearEquation {
 		t.Fatalf("expected KindLinearEquation, got %d", p.Kind())
 	}
-	lp := p.(linear.LinearProblem)
+	lp := p.(equat.LinearProblem)
 	if lp.A != 2 || lp.B != -4 {
 		t.Fatalf("expected A=2 B=-4, got A=%g B=%g", lp.A, lp.B)
 	}
